@@ -1,0 +1,5 @@
+pip install flask
+pip install pymongo
+pip install Flask Flask-SQLAlchemy
+pip install Faker
+pip install requests
