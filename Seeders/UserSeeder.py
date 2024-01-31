@@ -1,5 +1,5 @@
 
-from models.User_info import db, User_info
+from models.UserInfo import db, UserInfo
 from faker import Faker
 
 class UserSeeder:
@@ -15,7 +15,7 @@ class UserSeeder:
                 'age': fake.random_int(min=18, max=99),
                 'password': fake.password(),
             }
-            user = User_info(**user_info)
+            user = UserInfo(**user_info)
             db.session.add(user)
 
         db.session.commit()

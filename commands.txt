@@ -11,5 +11,13 @@ flask db init
 flask db migrate -m "Create User_info table"
 flask db upgrade
 
+#seeder
+flask seed user_seeder
+
+
+$env:FLASK_APP = "app.py"  # For Windows PowerShell, to know for main file
+
+
+
 
 
