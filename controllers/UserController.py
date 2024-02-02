@@ -133,17 +133,66 @@ class UserController:
     # async def send_telegram_message(channel_id, message):
     #     await telegram_bot.send_message(channel_id, message)
 
-    # API endpoint to retrieve total spending for all users
 
+
+
+
+     # FLASK API CLIENT SCRIPT
     @staticmethod
-    def get_total_spending():
+    def get_total_spending_by_users():
         try:
-            # Query the database to get total spending for all users
+            # query for total spending for all users
             total_spending = db.session.query(db.func.sum(UserSpending.money_spent)).scalar()
 
-            return jsonify({"total_spending": total_spending})
+            return jsonify({"total_spending_users": total_spending})
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+
+    @staticmethod
+    def get_eligible_users():
+        try:
+            # the voucher could get if have spent more than 1000
+            eligibility_threshold = 1000
+
+            # Query users whose spending exceeds the eligibility threshold
+            eligible_users = db.session.query(UserInfo). \
+                join(UserSpending). \
+                group_by(UserInfo.id). \
+                having(func.sum(UserSpending.money_spent) > eligibility_threshold). \
+                all()
+
+            return jsonify({
+                'users_for_voucher': eligible_users
+            })
+
+        except Exception as e:
+            raise
+
+    @staticmethod
+    def write_eligible_users_to_mongodb(eligible_users):
+        try:
+
+            for user in eligible_users:
+                db.users_vouchers.vouchers.insert_one({
+                    "user_id": user.id,
+                    "total_spending": float(db.session.query(func.sum(UserSpending.money_spent)).
+                                            filter_by(user_id=user.id).scalar())
+                })
+
+            return jsonify({"message": "Eligible users data written to MongoDB"}), 200
+
+        except Exception as e:
+            raise
+
+        finally:
+            db.session.close()
+
+
+
+
+
+
+
 
 
 
