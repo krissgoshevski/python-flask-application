@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from faker import Faker
 import requests
 import jsonify
+from telegram import Bot
 
 
 
