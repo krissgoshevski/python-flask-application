@@ -2,6 +2,7 @@ from models.UserInfo import UserInfo, UserSpending, db
 from flask import jsonify
 from sqlalchemy import func
 import logging
+from pymongo import MongoClient
 
 
 from telegram import Bot
@@ -185,27 +186,29 @@ class UserController:
         finally:
             db.session.close()
 
-    # @staticmethod
-    # def write_eligible_users_to_mongodb(eligible_users):
-    #     try:
-    #
-    #         for user in eligible_users:
-    #             db.users_vouchers.vouchers.insert_one({
-    #                 "user_id": user.id,
-    #                 "total_spending": float(db.session.query(func.sum(UserSpending.money_spent)).
-    #                                         filter_by(user_id=user.id).scalar())
-    #             })
-    #
-    #         return jsonify({"message": "Eligible users data written to MongoDB"}), 200
-    #
-    #     except Exception as e:
-    #         raise
-    #
-    #     finally:
-    #         db.session.close()
+    @staticmethod
+    def write_eligible_users_to_mongodb(eligible_users):
+        try:
+            # Connect to MongoDB
+            client = MongoClient('mongodb://localhost:27017/')
+            db_mongo = client['users_vouchers']  # database name
+            vouchers_collection = db_mongo['vouchers']
 
+            # Write eligible users to MongoDB
+            vouchers_collection.insert_many([
+                {
+                    "user_id": user['user_id'],
+                    "total_spending": float(user['total_spending'])
+                } for user in eligible_users
+            ])
 
+            return jsonify({"message": "Eligible users data written to MongoDB"}), 201
 
+        except Exception as e:
+            return jsonify({"error": f"MongoDB error: {str(e)}"}), 500
+
+        finally:
+            client.close()
 
 
 

@@ -2,6 +2,7 @@ from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
+
 class UserInfo(db.Model):
     __tablename__ = 'user_info'
     id = db.Column(db.Integer, primary_key=True, unique=True)
@@ -40,4 +41,8 @@ class UserSpending(db.Model):
                 f" money_spent={self.money_spent},"
                 f" year={self.year},"
                 f" user_id={self.user_id})>")
+
+
+
+
 

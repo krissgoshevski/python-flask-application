@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, jsonify, Response
 from controllers.UserController import UserController
 
 api_routes = Blueprint('api_routes', __name__)
@@ -34,4 +34,16 @@ def get_users_with_vouchers():
 
 
 
+@api_routes.route('/write_to_mongodb', methods=['POST'])
+def write_to_mongodb():
+    try:
+        # Get eligible users directly within the function
+        eligible_users = UserController.get_eligible_users()
 
+        # Write eligible users to MongoDB
+        response, status_code = UserController.write_eligible_users_to_mongodb(eligible_users)
+
+        return response, status_code
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
