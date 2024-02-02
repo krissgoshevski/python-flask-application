@@ -9,3 +9,7 @@ api_routes = Blueprint('api_routes', __name__)
 def get_total_spending(user_id):
     return UserController.get_total_spending(user_id)
 
+@api_routes.route('/average_spending_by_age', methods=['GET'])
+def get_average_spending_by_age():
+    return UserController.get_average_spending_by_age()
+
