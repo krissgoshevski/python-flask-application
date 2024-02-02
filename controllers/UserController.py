@@ -148,6 +148,10 @@ class UserController:
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
+
+
+
+
     @staticmethod
     def get_eligible_users():
         try:
@@ -161,31 +165,44 @@ class UserController:
                 having(func.sum(UserSpending.money_spent) > eligibility_threshold). \
                 all()
 
+            # Convert UserInfo to a JSON-serializable format
+            eligible_users_data = []
+            for user in eligible_users:
+                user_data = {
+                    'user_id': user.id,
+                    'name': user.name,
+                    'email': user.email,
+                    'age': user.age,
+                }
+                eligible_users_data.append(user_data)
+
             return jsonify({
-                'users_for_voucher': eligible_users
+                'users_for_voucher': eligible_users_data
             })
 
         except Exception as e:
-            raise
-
-    @staticmethod
-    def write_eligible_users_to_mongodb(eligible_users):
-        try:
-
-            for user in eligible_users:
-                db.users_vouchers.vouchers.insert_one({
-                    "user_id": user.id,
-                    "total_spending": float(db.session.query(func.sum(UserSpending.money_spent)).
-                                            filter_by(user_id=user.id).scalar())
-                })
-
-            return jsonify({"message": "Eligible users data written to MongoDB"}), 200
-
-        except Exception as e:
-            raise
-
+            return jsonify({"error": str(e)}), 500
         finally:
             db.session.close()
+
+    # @staticmethod
+    # def write_eligible_users_to_mongodb(eligible_users):
+    #     try:
+    #
+    #         for user in eligible_users:
+    #             db.users_vouchers.vouchers.insert_one({
+    #                 "user_id": user.id,
+    #                 "total_spending": float(db.session.query(func.sum(UserSpending.money_spent)).
+    #                                         filter_by(user_id=user.id).scalar())
+    #             })
+    #
+    #         return jsonify({"message": "Eligible users data written to MongoDB"}), 200
+    #
+    #     except Exception as e:
+    #         raise
+    #
+    #     finally:
+    #         db.session.close()
 
 
 
