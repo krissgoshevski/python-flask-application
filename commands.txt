@@ -20,9 +20,6 @@ pip install python-telegram-bot     #telegram-bot
 pip install Flask[async]
 
 
-pip install flask-mongoengine
-pip freeze
-
 
 
 
