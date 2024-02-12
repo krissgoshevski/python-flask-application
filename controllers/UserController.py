@@ -170,70 +170,23 @@ class UserController:
         finally:
             client.close()
 
-    # @staticmethod
-    # async def get_average_spending_by_age_telegram_bot_api():
-    #     try:
-    #         age_ranges = [(18, 24), (25, 30), (31, 36), (37, 47), (48, 99)]
-    #         average_spending_by_age = {}
-    #
-    #         for age_range in age_ranges:
-    #             min_age, max_age = age_range
-    #
-    #             total_spending = db.session.query(func.sum(UserSpending.money_spent)). \
-    #                 join(UserInfo).filter(UserInfo.age >= min_age, UserInfo.age <= max_age).scalar()
-    #
-    #             user_count = db.session.query(func.count(UserInfo.id)).filter(UserInfo.age >= min_age,
-    #                                                                           UserInfo.age <= max_age).scalar()
-    #
-    #             if total_spending is not None and user_count > 0:
-    #                 average_spending = float(total_spending) / user_count
-    #                 average_spending_by_age[f'{min_age}-{max_age}'] = round(average_spending, 1)
-    #             elif user_count > 0:
-    #                 logging.warning(f"Total spending is None for age range {min_age}-{max_age}")
-    #                 average_spending_by_age[f'{min_age}-{max_age}'] = 0.0
-    #             else:
-    #                 logging.warning(f"No users found for age range {min_age}-{max_age}")
-    #                 average_spending_by_age[f'{min_age}-{max_age}'] = 0.0
-    #
-    #         # Convert the result to JSON
-    #         statistics_json = jsonify(average_spending_by_age).get_data(as_text=True)
-    #
-    #         # Send the statistics to the Telegram channel
-    #         telegram_channel_id = 'StoreStatsBot'  # Replace with your actual channel username
-    #         await UserController.send_telegram_message(telegram_channel_id, f"Statistics: {statistics_json}")
-    #
-    #
-    #
-    #         return jsonify(average_spending_by_age), 200
-    #
-    #     except Exception as e:
-    #         logging.error(f"Error in get_average_spending_by_age_telegram_bot_api: {str(e)}")
-    #
-    #         return jsonify({'error': 'Internal Server Error'}), 500
-    #
-    #     finally:
-    #         db.session.close()
 
-    # @staticmethod
-    # async def send_telegram_message(channel_id, message):
-    #     await telegram_bot.send_message(channel_id, message)
+@staticmethod
+def get_users_with_total_spending_above_1000():
+    try:
+        eligible_users = UserSpending.query.filter(UserSpending.money_spent > 999).all()
 
-    @staticmethod
-    def get_users_with_total_spending_above_1000():
-        try:
-            eligible_users = UserSpending.query.filter(UserSpending.money_spent > 999).all()
+        eligible_users_data = []
+        for user in eligible_users:
+            user_data = {
+                'user_id': user.user_id,
+                'total_spending': user.money_spent
+            }
+            eligible_users_data.append(user_data)
 
-            eligible_users_data = []
-            for user in eligible_users:
-                user_data = {
-                    'user_id': user.user_id,
-                    'total_spending': user.money_spent
-                }
-                eligible_users_data.append(user_data)
-
-            return jsonify(eligible_users_data), 200
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
+        return jsonify(eligible_users_data), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 
