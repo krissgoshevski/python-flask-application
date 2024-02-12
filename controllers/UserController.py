@@ -218,5 +218,22 @@ class UserController:
     # async def send_telegram_message(channel_id, message):
     #     await telegram_bot.send_message(channel_id, message)
 
+    @staticmethod
+    def get_users_with_total_spending_above_1000():
+        try:
+            eligible_users = UserSpending.query.filter(UserSpending.money_spent > 999).all()
+
+            eligible_users_data = []
+            for user in eligible_users:
+                user_data = {
+                    'user_id': user.user_id,
+                    'total_spending': user.money_spent
+                }
+                eligible_users_data.append(user_data)
+
+            return jsonify(eligible_users_data), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
 
 

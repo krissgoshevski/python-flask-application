@@ -34,6 +34,6 @@ def get_users_with_vouchers():
 
 
 
-@api_routes.route('/write_to_mongodb', methods=['POST'])
-def write_to_mongodb():
-    return UserController.write_eligible_users_to_mongodb()
+@api_routes.route('/total_spending_above_1000', methods=['GET'])
+def total_spending_above_thousand():
+    return UserController.get_users_with_total_spending_above_1000()
