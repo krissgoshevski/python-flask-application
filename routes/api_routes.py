@@ -53,16 +53,7 @@ def send_statistics_to_telegram(statistics):
     else:
         return 'Failed to send statistics to Telegram.'
 
-# @api_routes.route('/test/bot', methods=['GET'])
-# def get_avg_spending_age_bot():
-#     avg_spending_age_url = 'http://127.0.0.1:5000/api/average_spending_by_age'
-#   #  avg_spending_age_url = UserController.get_average_spending_by_age_for_bot_api()
-#
-#     result = send_statistics_to_telegram(avg_spending_age_url)
-#     return Response(result, status=200)
 
-
-# Define the route to get average spending by age and send it to the Telegram bot
 @api_routes.route('/test/bot', methods=['GET'])
 def get_avg_spending_age_bot():
     avg_spending_age_url = 'http://127.0.0.1:5000/api/average_spending_by_age'
