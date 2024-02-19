@@ -45,7 +45,7 @@ class UserController:
     @staticmethod
     def get_average_spending_by_age():
         try:
-            # Define age ranges
+            # age ranges
             age_ranges = [(18, 24), (25, 30), (31, 36), (37, 47), (48, 99)]
 
             #  dictionary to store average spending for each age range
@@ -187,6 +187,7 @@ def get_users_with_total_spending_above_1000():
         return jsonify(eligible_users_data), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 
 
