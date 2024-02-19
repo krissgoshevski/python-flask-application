@@ -1,9 +1,7 @@
 from flask import Blueprint, jsonify, Response, request, url_for
 from controllers.UserController import UserController
-
 import requests
-from telegram import Bot
-from telegram.ext import Updater, CommandHandler
+
 
 api_routes = Blueprint('api_routes', __name__)
 
@@ -14,8 +12,6 @@ def get_total_spending(user_id):
 @api_routes.route('/average_spending_by_age', methods=['GET'])
 def get_average_spending_by_age():
     return UserController.get_average_spending_by_age()
-
-
 
 
 
@@ -40,7 +36,7 @@ def total_spending_above_thousand():
 
 
 
-####################################################
+#########################################################
 #########################################################
 
 def send_statistics_to_telegram(statistics):

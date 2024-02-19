@@ -6,6 +6,9 @@ from Seeders.UserSeeder import UserSeeder
 from routes.api_routes import api_routes
 
 
+
+
+
 app = Flask(__name__)
 
 # Mysql Configuration
@@ -23,3 +26,5 @@ if __name__ == '__main__':
         db.create_all()
         UserSeeder.run()
     app.run(debug=True)
+
+

@@ -135,58 +135,61 @@ class UserController:
         finally:
             db.session.close()
 
+
+# ## za write to mongo db
+#     @staticmethod
+#     def write_eligible_users_to_mongodb():
+#         try:
+#             # The voucher could get if have spent more than 1000
+#             eligibility_threshold = 1000
+#
+#             # Query users whose spending exceeds the eligibility threshold
+#             eligible_users = db.session.query(UserInfo). \
+#                 join(UserSpending). \
+#                 group_by(UserInfo.id). \
+#                 having(func.sum(UserSpending.money_spent) > eligibility_threshold). \
+#                 all()
+#
+#             # Connect to MongoDB
+#             client = MongoClient('mongodb://localhost:27017/') # url
+#             db_mongo = client['users_vouchers']  # database name
+#             vouchers_collection = db_mongo['vouchers'] # collection
+#
+#             # insert many users
+#             vouchers_collection.insert_many([
+#                 {
+#                     "user_id": user.id,
+#                     "total_spending": float(
+#                         db.session.query(func.sum(UserSpending.money_spent)).filter_by(user_id=user.id).scalar())
+#                 } for user in eligible_users
+#             ])
+#
+#             return jsonify({"message": "Eligible users data written to MongoDB"}), 201
+#
+#         except Exception as e:
+#             return jsonify({"error": f"MongoDB error: {str(e)}"}), 500
+#
+#         finally:
+#             client.close()
+
+
     @staticmethod
-    def write_eligible_users_to_mongodb():
+    def get_users_with_total_spending_above_1000():
         try:
-            # The voucher could get if have spent more than 1000
-            eligibility_threshold = 1000
+            eligible_users = UserSpending.query.filter(UserSpending.money_spent > 999).all()
 
-            # Query users whose spending exceeds the eligibility threshold
-            eligible_users = db.session.query(UserInfo). \
-                join(UserSpending). \
-                group_by(UserInfo.id). \
-                having(func.sum(UserSpending.money_spent) > eligibility_threshold). \
-                all()
-
-            # Connect to MongoDB
-            client = MongoClient('mongodb://localhost:27017/') # url
-            db_mongo = client['users_vouchers']  # database name
-            vouchers_collection = db_mongo['vouchers'] # collection
-
-            # insert many users
-            vouchers_collection.insert_many([
-                {
-                    "user_id": user.id,
-                    "total_spending": float(
-                        db.session.query(func.sum(UserSpending.money_spent)).filter_by(user_id=user.id).scalar())
-                } for user in eligible_users
-            ])
-
-            return jsonify({"message": "Eligible users data written to MongoDB"}), 201
-
-        except Exception as e:
-            return jsonify({"error": f"MongoDB error: {str(e)}"}), 500
-
-        finally:
-            client.close()
-
-
-@staticmethod
-def get_users_with_total_spending_above_1000():
-    try:
-        eligible_users = UserSpending.query.filter(UserSpending.money_spent > 999).all()
-
-        eligible_users_data = []
-        for user in eligible_users:
-            user_data = {
+            eligible_users_data = []
+            for user in eligible_users:
+                user_data = {
                 'user_id': user.user_id,
                 'total_spending': user.money_spent
             }
-            eligible_users_data.append(user_data)
+                eligible_users_data.append(user_data)
 
-        return jsonify(eligible_users_data), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+                return jsonify(eligible_users_data), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
 
 
 
