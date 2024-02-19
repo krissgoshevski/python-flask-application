@@ -19,6 +19,7 @@ $env:FLASK_APP = "app.py"  # For Windows PowerShell, to know for main file
 pip install python-telegram-bot     #telegram-bot
 pip install Flask[async]
 
+pip install Flask-Testing
 
 
 
