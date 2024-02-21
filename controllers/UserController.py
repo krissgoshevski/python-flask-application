@@ -1,12 +1,11 @@
 from models.UserInfo import UserInfo, UserSpending, db
-from flask import jsonify
+from flask import jsonify, request
 from sqlalchemy import func
 import logging
-from pymongo import MongoClient
+from flask_bcrypt import Bcrypt
 
 
-from telegram import Bot
-
+bcrypt = Bcrypt()
 
 
 class UserController:
@@ -131,43 +130,6 @@ class UserController:
             db.session.close()
 
 
-# ## za write to mongo db
-#     @staticmethod
-#     def write_eligible_users_to_mongodb():
-#         try:
-#             # The voucher could get if have spent more than 1000
-#             eligibility_threshold = 1000
-#
-#             # Query users whose spending exceeds the eligibility threshold
-#             eligible_users = db.session.query(UserInfo). \
-#                 join(UserSpending). \
-#                 group_by(UserInfo.id). \
-#                 having(func.sum(UserSpending.money_spent) > eligibility_threshold). \
-#                 all()
-#
-#             # Connect to MongoDB
-#             client = MongoClient('mongodb://localhost:27017/') # url
-#             db_mongo = client['users_vouchers']  # database name
-#             vouchers_collection = db_mongo['vouchers'] # collection
-#
-#             # insert many users
-#             vouchers_collection.insert_many([
-#                 {
-#                     "user_id": user.id,
-#                     "total_spending": float(
-#                         db.session.query(func.sum(UserSpending.money_spent)).filter_by(user_id=user.id).scalar())
-#                 } for user in eligible_users
-#             ])
-#
-#             return jsonify({"message": "Eligible users data written to MongoDB"}), 201
-#
-#         except Exception as e:
-#             return jsonify({"error": f"MongoDB error: {str(e)}"}), 500
-#
-#         finally:
-#             client.close()
-
-
     @staticmethod
     def get_users_with_total_spending_above_1000():
         try:
@@ -184,6 +146,94 @@ class UserController:
                 return jsonify(eligible_users_data), 200
         except Exception as e:
             return jsonify({'error': str(e)}), 500
+
+
+    @staticmethod
+    def store():
+            try:
+                data = request.get_json()
+                name = data.get('name')
+                email = data.get('email')
+                age = data.get('age')
+                password = data.get('password')
+
+                if not name or not email or not age or not password:
+                    return jsonify({'error': 'Name, email, age and password are required'}), 400
+
+                hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+                new_user = UserInfo(name=name, email=email, age=age, password=hashed_password)
+
+                db.session.add(new_user)
+                db.session.commit()
+
+                return jsonify({
+                    'message': 'Successfully created user',
+                    'user': {
+                        'id': new_user.id,
+                        'name': new_user.name,
+                        'email': new_user.email,
+                        'age': new_user.age
+                    }
+                }), 201
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
+    @staticmethod
+    def update(user_id):
+        try:
+            data = request.get_json()
+            name = data.get('name')
+            email = data.get('email')
+            age = data.get('age')
+            password = data.get('password')
+
+
+            user = UserInfo.query.get(user_id)
+            if not user:
+                return jsonify({'error': 'User not found'}), 404
+
+
+            if name:
+                user.name = name
+            if email:
+                user.email = email
+            if age:
+                user.age = age
+            if password:
+                hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+                user.password = hashed_password
+
+
+            db.session.commit()
+
+            return jsonify({
+                'message': 'Successfully updated user',
+                'user': {
+                    'id': user.id,
+                    'name': user.name,
+                    'email': user.email,
+                    'age': user.age
+                }
+            }), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @staticmethod
+    def destroy(user_id):
+        try:
+            user = UserInfo.query.get(user_id)
+            if not user:
+                return jsonify({'error': 'User not found'}), 404
+
+            db.session.delete(user)
+            db.session.commit()
+
+            return jsonify({'message': 'User deleted successfully'}), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+
 
 
 

@@ -20,6 +20,9 @@ pip install python-telegram-bot     #telegram-bot
 pip install Flask[async]
 
 pip install Flask-Testing
+pip install flask-cors
+pip install flask-bcrypt
+
 
 
 
