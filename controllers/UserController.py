@@ -9,11 +9,6 @@ from telegram import Bot
 
 
 
-# TELEGRAM_BOT_TOKEN = '6747198782:AAET-fEvkHlp2PUpYzDK_4HG-RFOsRBvgDw'
-# telegram_bot = Bot(token=TELEGRAM_BOT_TOKEN)
-
-
-
 class UserController:
 
     @staticmethod

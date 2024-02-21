@@ -61,9 +61,9 @@ def get_avg_spending_age_bot():
 
     if response.status_code == 200:
         statistics = response.json()
-        # formatted_statistics = "\n".join(
-        #     [f"{age_range}: {avg_spending}" for age_range, avg_spending in statistics.items()])
-        result = send_statistics_to_telegram(statistics)
+        formatted_statistics = "\n".join(
+             [f"{age_range}: {avg_spending}" for age_range, avg_spending in statistics.items()])
+        result = send_statistics_to_telegram(formatted_statistics)
         return Response(result, status=200)
     else:
         return Response('Failed to retrieve statistics from API', status=response.status_code)
