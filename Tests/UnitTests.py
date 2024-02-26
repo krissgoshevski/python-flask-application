@@ -1,8 +1,8 @@
 import unittest
 import sys
 import os
-from app import app, db
-from unittest.mock import patch, MagicMock
+from app import app
+from unittest.mock import MagicMock
 import json
 
 project_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))

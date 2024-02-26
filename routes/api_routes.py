@@ -1,6 +1,5 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint
 from controllers.UserController import UserController
-from models.UserInfo import UserInfo
 import os
 from dotenv import load_dotenv
 
@@ -19,8 +18,6 @@ def get_all_users():
 def show(user_id):
     return UserController.show(user_id)
 
-
-
 @api_routes.route('/user/create', methods=['POST'])
 def store():
     return UserController.store()
@@ -28,7 +25,6 @@ def store():
 @api_routes.route('/user/edit/<int:user_id>', methods=['PUT'])
 def update_user(user_id):
     return UserController.update(user_id)
-
 
 @api_routes.route('/user/delete/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
@@ -60,6 +56,6 @@ def total_spending_above_thousand():
     return UserController.get_users_with_total_spending_above_1000()
 
 
-@api_routes.route('/test/bot', methods=['GET'])
+@api_routes.route('/bot', methods=['GET'])
 def get_avg_spending_age_bot():
     return user_controller.get_avg_spending_age_bot()

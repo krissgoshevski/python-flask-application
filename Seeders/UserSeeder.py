@@ -1,10 +1,7 @@
-
 from models.UserInfo import db, UserInfo
 from faker import Faker
 
 class UserSeeder:
-
-
     @staticmethod
     def run():
         fake = Faker()
