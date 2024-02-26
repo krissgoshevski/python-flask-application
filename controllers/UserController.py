@@ -1,14 +1,17 @@
 from models.UserInfo import UserInfo, UserSpending, db
-from flask import jsonify, request
+from flask import jsonify, request, Response
 from sqlalchemy import func
+import requests
 import logging
 from flask_bcrypt import Bcrypt
-
-
 bcrypt = Bcrypt()
 
 
 class UserController:
+    def __init__(self, bot_token, chat_id):
+        self.bot_token = bot_token
+        self.chat_id = chat_id
+
 
     @staticmethod
     def get_total_spending(user_id):
@@ -138,34 +141,34 @@ class UserController:
 
     @staticmethod
     def store():
-            try:
-                data = request.get_json()
-                name = data.get('name')
-                email = data.get('email')
-                age = data.get('age')
-                password = data.get('password')
+        try:
+            data = request.get_json()
+            name = data.get('name')
+            email = data.get('email')
+            age = data.get('age')
+            password = data.get('password')
 
-                if not name or not email or not age or not password:
-                    return jsonify({'error': 'Name, email, age and password are required'}), 400
+            if not name or not email or not age or not password:
+                return jsonify({'error': 'Name, email, age and password are required'}), 400
 
-                hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+            hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
-                new_user = UserInfo(name=name, email=email, age=age, password=hashed_password)
+            new_user = UserInfo(name=name, email=email, age=age, password=hashed_password)
 
-                db.session.add(new_user)
-                db.session.commit()
+            db.session.add(new_user)
+            db.session.commit()
 
-                return jsonify({
-                    'message': 'Successfully created user',
-                    'user': {
-                        'id': new_user.id,
-                        'name': new_user.name,
-                        'email': new_user.email,
-                        'age': new_user.age
-                    }
-                }), 201
-            except Exception as e:
-                return jsonify({'error': str(e)}), 500
+            return jsonify({
+                'message': 'Successfully created user',
+                'user': {
+                    'id': new_user.id,
+                    'name': new_user.name,
+                    'email': new_user.email,
+                    'age': new_user.age
+                }
+            }), 201
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
 
     @staticmethod
     def update(user_id):
@@ -207,6 +210,8 @@ class UserController:
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+
+
     @staticmethod
     def destroy(user_id):
         try:
@@ -221,9 +226,53 @@ class UserController:
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+    @staticmethod
+    def show(user_id):
+        try:
+            user = UserInfo.query.get(user_id)
 
+            if user is None:
+                return jsonify({'error': 'User not found'}), 404
 
+            user_details = {
+                'id': user.id,
+                'name': user.name,
+                'email': user.email,
+                'age': user.age,
+                'created_at': str(user.created_at),
+                'updated_at': str(user.updated_at)
+            }
 
+            return jsonify(user_details), 200
 
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    def send_statistics_to_telegram(self, statistics):
+        bot_token = self.bot_token
+        chat_id = self.chat_id
+        url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
+        payload = {
+            'chat_id': chat_id,
+            'text': statistics
+        }
+        response = requests.post(url, json=payload)
+        if response.status_code == 200:
+            return 'Statistics sent successfully!'
+        else:
+            return 'Failed to send statistics to Telegram.'
+
+    def get_avg_spending_age_bot(self):
+        avg_spending_age_url = 'http://127.0.0.1:5000/api/average_spending_by_age'
+        response = requests.get(avg_spending_age_url)
+
+        if response.status_code == 200:
+            statistics = response.json()
+            formatted_statistics = "\n".join(
+                [f"{age_range}: {avg_spending}" for age_range, avg_spending in statistics.items()])
+            result = self.send_statistics_to_telegram(formatted_statistics)
+            return Response(result, status=200)
+        else:
+            return Response('Failed to retrieve statistics from API', status=response.status_code)
 
 
