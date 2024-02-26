@@ -4,12 +4,9 @@ import os
 from app import app, db
 from unittest.mock import patch, MagicMock
 import json
-import logging
-
 
 project_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 sys.path.append(project_dir)
-
 
 class TestAPIEndpoints(unittest.TestCase):
     def setUp(self):
