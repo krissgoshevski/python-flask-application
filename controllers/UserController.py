@@ -248,6 +248,24 @@ class UserController:
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+
+    @staticmethod
+    def get_all_users():
+        try:
+            users = UserInfo.query.all()
+            user_data = []
+            for user in users:
+                user_data.append({
+                    'id': user.id,
+                    'name': user.name,
+                    'email': user.email,
+                    'age': user.age,
+                    'created_at': user.created_at.strftime('%Y-%m-%d %H:%M:%S') if user.created_at else None,
+                })
+            return jsonify({'users': user_data}), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
     def send_statistics_to_telegram(self, statistics):
         bot_token = self.bot_token
         chat_id = self.chat_id

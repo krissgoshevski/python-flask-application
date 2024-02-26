@@ -13,20 +13,7 @@ user_controller = UserController(BOT_TOKEN, CHAT_ID)
 
 @api_routes.route('/users', methods=['GET'])
 def get_all_users():
-    try:
-        users = UserInfo.query.all()
-        user_data = []
-        for user in users:
-            user_data.append({
-                'id': user.id,
-                'name': user.name,
-                'email': user.email,
-                'age': user.age,
-                'created_at': user.created_at.strftime('%Y-%m-%d %H:%M:%S') if user.created_at else None,
-            })
-        return jsonify({'users': user_data}), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    return UserController.get_all_users()
 
 @api_routes.route('/user/show/<user_id>', methods=['GET'])
 def show(user_id):
