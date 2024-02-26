@@ -15,25 +15,9 @@ flask db upgrade
 flask seed user_seeder
 
 $env:FLASK_APP = "app.py"  # For Windows PowerShell, to know for main file
-
 pip install python-telegram-bot     #telegram-bot
 pip install Flask[async]
-
 pip install Flask-Testing
 pip install flask-cors
 pip install flask-bcrypt
 pip install python-dotenv
-
-
-
-
-
-
-
-
-
-
-
-
-
-
