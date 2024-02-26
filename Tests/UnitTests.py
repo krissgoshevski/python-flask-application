@@ -1,10 +1,9 @@
 import unittest
 import sys
 import os
-from app import app
+from app import app, db
 from unittest.mock import patch, MagicMock
 import json
-from models.UserInfo import UserInfo, UserSpending, db
 import logging
 
 
@@ -34,33 +33,16 @@ class TestAPIEndpoints(unittest.TestCase):
                 f"The user with ID {user_id} has not spent money yet. Received status code {response.status_code}")
 
     def test_get_average_spending_by_age(self):
-        try:
-            # Mock database session and query
-            with patch('app.db.session') as mock_session:
-                mock_query = MagicMock()
-                mock_query.scalar.side_effect = [150.0, 262.5, 0.0, 3367103.3, 3563.3]
-                mock_session.query.return_value = mock_query
+        response = self.app.get('/api/average_spending_by_age')
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['18-24'], 150.0)
+        self.assertEqual(data['25-30'], 262.5)
+        self.assertEqual(data['31-36'], 0.0)
+        self.assertEqual(data['37-47'], 3367103.3)
+        self.assertEqual(data['48-99'], 3563.3)
 
-                response = self.app.get('/api/average_spending_by_age')
-            data = json.loads(response.data)
-            self.assertEqual(response.status_code, 200)
 
-            # Assert expected average spending values
-            expected_data = {
-                "18-24": 150.0,
-                "25-30": 262.5,
-                "31-36": 0.0,
-                "37-47": 3367103.3,
-                "48-99": 3563.3
-            }
-            self.assertEqual(data, expected_data)
-
-        except Exception as e:
-            logging.error(f"Error in test_get_average_spending_by_age: {str(e)}")
-            self.fail("An unexpected error occurred during the test.")
-
-        finally:
-            db.session.close()
 
     def test_get_total_spending_by_users(self):
         response = self.app.get('/api/total_spending_users')
