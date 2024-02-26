@@ -1,9 +1,17 @@
 from flask import Blueprint, jsonify, Response, request, url_for
 from controllers.UserController import UserController
-import requests
 from models.UserInfo import UserInfo
+import os
+import requests
+from dotenv import load_dotenv
 
 
+
+# Loading environment variables from .env
+load_dotenv()
+
+BOT_TOKEN = os.getenv('BOT_TOKEN')
+CHAT_ID = os.getenv('CHAT_ID')
 api_routes = Blueprint('api_routes', __name__)
 
 
@@ -68,8 +76,8 @@ def total_spending_above_thousand():
     return UserController.get_users_with_total_spending_above_1000()
 
 def send_statistics_to_telegram(statistics):
-    bot_token = '6747198782:AAET-fEvkHlp2PUpYzDK_4HG-RFOsRBvgDw'
-    chat_id = 6273167095
+    bot_token = BOT_TOKEN
+    chat_id = CHAT_ID
     url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
     payload = {
         'chat_id': chat_id,

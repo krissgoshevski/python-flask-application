@@ -22,6 +22,8 @@ pip install Flask[async]
 pip install Flask-Testing
 pip install flask-cors
 pip install flask-bcrypt
+pip install python-dotenv
+
 
 
 
