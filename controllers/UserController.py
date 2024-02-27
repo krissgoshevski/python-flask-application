@@ -100,7 +100,7 @@ class UserController:
                 having(func.sum(UserSpending.money_spent) > eligibility_threshold). \
                 all()
 
-            # Convert UserInfo to a JSON-serializable format
+
             eligible_users_data = []
             for user in eligible_users:
                 user_data = {
@@ -135,6 +135,50 @@ class UserController:
                 eligible_users_data.append(user_data)
 
             return jsonify(eligible_users_data), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    def send_statistics_to_telegram(self, statistics):
+        bot_token = self.bot_token
+        chat_id = self.chat_id
+        url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
+        payload = {
+            'chat_id': chat_id,
+            'text': statistics
+        }
+        response = requests.post(url, json=payload)
+        if response.status_code == 200:
+            return 'Statistics sent successfully!'
+        else:
+            return 'Failed to send statistics to Telegram.'
+
+    def get_avg_spending_age_bot(self):
+        avg_spending_age_url = 'http://127.0.0.1:5000/api/average_spending_by_age'
+        response = requests.get(avg_spending_age_url)
+
+        if response.status_code == 200:
+            statistics = response.json()
+            formatted_statistics = "\n".join(
+                [f"{age_range}: {avg_spending}" for age_range, avg_spending in statistics.items()])
+            result = self.send_statistics_to_telegram(formatted_statistics)
+            return Response(result, status=200)
+        else:
+            return Response('Failed to retrieve statistics from API', status=response.status_code)
+
+    @staticmethod
+    def get_all_users():
+        try:
+            users = UserInfo.query.all()
+            user_data = []
+            for user in users:
+                user_data.append({
+                    'id': user.id,
+                    'name': user.name,
+                    'email': user.email,
+                    'age': user.age,
+                    'created_at': user.created_at.strftime('%Y-%m-%d %H:%M:%S') if user.created_at else None,
+                })
+            return jsonify({'users': user_data}), 200
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
@@ -249,48 +293,8 @@ class UserController:
             return jsonify({'error': str(e)}), 500
 
 
-    @staticmethod
-    def get_all_users():
-        try:
-            users = UserInfo.query.all()
-            user_data = []
-            for user in users:
-                user_data.append({
-                    'id': user.id,
-                    'name': user.name,
-                    'email': user.email,
-                    'age': user.age,
-                    'created_at': user.created_at.strftime('%Y-%m-%d %H:%M:%S') if user.created_at else None,
-                })
-            return jsonify({'users': user_data}), 200
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
 
-    def send_statistics_to_telegram(self, statistics):
-        bot_token = self.bot_token
-        chat_id = self.chat_id
-        url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
-        payload = {
-            'chat_id': chat_id,
-            'text': statistics
-        }
-        response = requests.post(url, json=payload)
-        if response.status_code == 200:
-            return 'Statistics sent successfully!'
-        else:
-            return 'Failed to send statistics to Telegram.'
 
-    def get_avg_spending_age_bot(self):
-        avg_spending_age_url = 'http://127.0.0.1:5000/api/average_spending_by_age'
-        response = requests.get(avg_spending_age_url)
 
-        if response.status_code == 200:
-            statistics = response.json()
-            formatted_statistics = "\n".join(
-                [f"{age_range}: {avg_spending}" for age_range, avg_spending in statistics.items()])
-            result = self.send_statistics_to_telegram(formatted_statistics)
-            return Response(result, status=200)
-        else:
-            return Response('Failed to retrieve statistics from API', status=response.status_code)
 
 
